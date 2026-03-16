@@ -19,6 +19,7 @@ func TestEmptyAcceptHeaderAndSupportedTypesIsEmpty_ReturnsErrorNotSupported(t *t
 
 func TestInvalidAcceptHeader_ReturnsErrorNotSupported(t *testing.T) {
 	(&negotiateWith{acceptHeader: "*/", supportedTypes: []string{"text/html"}}).shouldReturnErrorNotSupported(t)
+	(&negotiateWith{acceptHeader: " ", supportedTypes: []string{"text/html"}}).shouldReturnErrorNotSupported(t)
 }
 
 func TestEmptyAcceptHeaderAndSupportedTypesHasOneElement_ReturnsSupportedType(t *testing.T) {

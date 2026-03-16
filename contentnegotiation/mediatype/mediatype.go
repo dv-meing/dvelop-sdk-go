@@ -28,6 +28,7 @@ type Mediatype struct {
 // It returns the negotiated mediatype or an error if none of the requested mediatypes is supported.
 //
 // Example:
+//
 //	func handler(w http.ResponseWriter, req *http.Request) {
 //		negotiatedType, err := mediatype.Negotiate(req.Header.Get("Accept"), []string{"text/html","application/json"})
 //		if err != nil {
@@ -53,11 +54,19 @@ func Negotiate(acceptHeader string, supportedTypes []string) (*Mediatype, error)
 	}
 
 	tokens := strings.Split(acceptHeader, ",")
-	mediaranges := make([]*headervalue, len(tokens))
-	for k, r := range tokens {
-		x, _ := parseHeaderValue(r)
-		mediaranges[k] = x
+	mediaranges := make([]*headervalue, 0, len(tokens))
+	for _, r := range tokens {
+		x, err := parseHeaderValue(r)
+		if err != nil || x == nil {
+			continue
+		}
+		mediaranges = append(mediaranges, x)
 	}
+
+	if len(mediaranges) == 0 {
+		return nil, ErrNotSupported
+	}
+
 	sort.Sort(sort.Reverse(headervalues(mediaranges)))
 
 	for _, mr := range mediaranges {
